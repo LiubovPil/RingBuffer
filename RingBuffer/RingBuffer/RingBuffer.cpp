@@ -37,7 +37,7 @@ template<typename T>
 class RingBufferTwoSide {
 public:
 	RingBufferTwoSide(const size_t& buffer_size_)
-		: buffer_size(buffer_size_), head(0), tail(0),
+		: buffer_size(buffer_size_), right(0), left(0),
 		is_full(false), ring_buffer(NULL) {
 		ring_buffer = new T[buffer_size];
 	}
@@ -45,44 +45,44 @@ public:
 		return buffer_size;
 	}
 	bool IsEmpty() const {
-		return ((tail - head) == 0 && !is_full);
+		return ((left - right) == 0 && !is_full);
 	}
 	void PushBack(T value_) {
 		if (is_full)
 			throw runtime_error("Ring buffer is full");
 
-		ring_buffer[tail++] = value_;
+		ring_buffer[left++] = value_;
 		
-		CheckBorder(tail);
+		CheckBorder(left);
 
-		is_full = tail == head;
+		is_full = left == right;
 	}
 	T& PopBack() {
 		if (IsEmpty())
 			throw runtime_error("Ring buffer is empty");
 
-		tail--;
-		CheckBorder(tail);
+		left--;
+		CheckBorder(left);
 
-		return ring_buffer[tail];
+		return ring_buffer[left];
 	}
 	void PushFront(T value_) {
 		if (is_full)
 			throw runtime_error("Ring buffer is full");
 		
-		head--;
-		CheckBorder(head);
+		right--;
+		CheckBorder(right);
 
-		ring_buffer[head] = value_;
+		ring_buffer[right] = value_;
 
-		is_full = tail == head;
+		is_full = left == right;
 	}
 	T& PopFront() {
 		if (IsEmpty())
 			throw runtime_error("Ring buffer is empty");
 
-		T& value = ring_buffer[head++];
-		CheckBorder(head);
+		T& value = ring_buffer[right++];
+		CheckBorder(right);
 
 		return value;
 	}
@@ -91,8 +91,8 @@ public:
 	}
 private:
 	const size_t buffer_size;
-	int head;
-	int tail;
+	int right;
+	int left;
 	bool is_full;
 	T* ring_buffer;
 
